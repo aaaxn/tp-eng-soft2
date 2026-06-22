@@ -5,15 +5,66 @@ from typing import Optional
 
 import typer
 from github import GithubException
+from rich import box
+from rich.console import Console
+from rich.panel import Panel
+from rich.table import Table
+from rich.text import Text
 
 from saiku import analise, coleta, relatorio
 
 __version__ = "0.1.0"
 
+SAIKU_LOGO = r""" ____    _    ___ _  ___   _
+/ ___|  / \  |_ _| |/ / | | |
+\___ \ / _ \  | || ' /| | | |
+ ___) / ___ \ | || . \| |_| |
+|____/_/   \_\___|_|\_\\___/"""
+
+PICARETA = (
+    ("      ▄████████████▄\n", "bold bright_cyan"),
+    ("  ▄████████████████████▄\n", "bold cyan"),
+    ("████████          ████████\n", "bold blue"),
+    ("                  ████\n", "bold yellow"),
+    ("                ████\n", "bold #b87333"),
+    ("              ████\n", "bold #b87333"),
+    ("            ████\n", "bold #8b5a2b"),
+    ("          ████", "bold #8b5a2b"),
+)
+
 app = typer.Typer(
     help="Analisa issues e pull requests de um repositório do GitHub "
     "em busca de sinais de dificuldade de manutenção."
 )
+
+
+def _mostrar_banner() -> None:
+    console = Console(highlight=False)
+    picareta = Text()
+    for trecho, estilo in PICARETA:
+        picareta.append(trecho, style=estilo)
+
+    identidade = Text.from_ansi(SAIKU_LOGO)
+    identidade.stylize("bold bright_cyan")
+    identidade.append("\n\n  REPOSITORY MINER", style="bold yellow")
+    identidade.append("\n  encontre sinais. entenda o código.", style="dim white")
+
+    conteudo = Table.grid(padding=(0, 3))
+    conteudo.add_column(no_wrap=True)
+    conteudo.add_column(vertical="middle")
+    conteudo.add_row(picareta, identidade)
+
+    console.print()
+    console.print(
+        Panel.fit(
+            conteudo,
+            box=box.DOUBLE_EDGE,
+            border_style="bright_cyan",
+            padding=(1, 2),
+            subtitle=f"[dim]v{__version__}  •  mineração de repositórios GitHub[/dim]",
+        )
+    )
+    console.print()
 
 
 def _mostrar_versao(valor: bool) -> None:
@@ -58,6 +109,8 @@ def analisar(
             "Formato inválido: use csv, json ou md.", fg=typer.colors.RED, err=True
         )
         raise typer.Exit(code=1)
+
+    _mostrar_banner()
 
     cliente = coleta.conectar(token)
     try:
