@@ -15,12 +15,14 @@ def analisar(issues: List[dict], prs: List[dict], arquivos: List[dict]) -> dict:
     # calcula indicadores e sinais de alerta a partir dos dados coletados
     df_issues = pd.DataFrame(issues)
     df_prs = pd.DataFrame(prs)
+    df_arquivos = pd.DataFrame(arquivos)
 
     resultado = {
         "indicadores": {},
         "sinais": [],
         "issues_antigas": pd.DataFrame(),
         "prs_demorados": pd.DataFrame(),
+        "arquivos_quentes": pd.DataFrame(),
     }
 
     if not df_issues.empty:
@@ -93,6 +95,21 @@ def analisar(issues: List[dict], prs: List[dict], arquivos: List[dict]) -> dict:
         if len(abertos_antigos) > 0:
             resultado["sinais"].append(
                 f"{len(abertos_antigos)} PRs estão abertos há mais de {DIAS_PR_DEMORADO} dias aguardando revisão."
+            )
+
+    if not df_arquivos.empty:
+        quentes = (
+            df_arquivos.groupby("arquivo")
+            .agg(correcoes=("pr", "nunique"), alteracoes=("alteracoes", "sum"))
+            .reset_index()
+            .sort_values(["correcoes", "alteracoes"], ascending=False)
+        )
+        resultado["arquivos_quentes"] = quentes
+        recorrentes = quentes[quentes["correcoes"] >= 2]
+        if not recorrentes.empty:
+            resultado["sinais"].append(
+                f"{len(recorrentes)} arquivos aparecem em 2 ou mais PRs de correção: "
+                "possíveis módulos propensos a bugs (hotspots)."
             )
 
     if not resultado["sinais"]:
