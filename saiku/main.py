@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import Optional
 
 import typer
+from github import GithubException
 
 from saiku import analise, coleta, relatorio
 
@@ -37,14 +38,33 @@ def analisar(
     ),
 ):
     # coleta, analisa e exporta dados de issues e prs do repositorio informado
+    if formato not in relatorio.FORMATOS:
+        typer.secho(
+            "Formato inválido: use csv, json ou md.", fg=typer.colors.RED, err=True
+        )
+        raise typer.Exit(code=1)
+
     cliente = coleta.conectar(token)
-    repo = cliente.get_repo(repositorio)
-    typer.echo(f"Coletando até {max_issues} issues de {repositorio}...")
-    issues = coleta.coletar_issues(repo, max_issues)
-    typer.echo(f"Coletando até {max_prs} pull requests...")
-    prs, correcoes = coleta.coletar_prs(repo, max_prs)
-    typer.echo(f"Coletando arquivos de até {max_prs_arquivos} PRs de correção...")
-    arquivos = coleta.coletar_arquivos_de_correcoes(correcoes, max_prs_arquivos)
+    try:
+        repo = cliente.get_repo(repositorio)
+        typer.echo(f"Coletando até {max_issues} issues de {repositorio}...")
+        issues = coleta.coletar_issues(repo, max_issues)
+        typer.echo(f"Coletando até {max_prs} pull requests...")
+        prs, correcoes = coleta.coletar_prs(repo, max_prs)
+        typer.echo(f"Coletando arquivos de até {max_prs_arquivos} PRs de correção...")
+        arquivos = coleta.coletar_arquivos_de_correcoes(correcoes, max_prs_arquivos)
+    except GithubException as exc:
+        mensagem = (
+            exc.data.get("message", str(exc))
+            if isinstance(exc.data, dict)
+            else str(exc)
+        )
+        typer.secho(
+            f"Erro ao acessar a API do GitHub: {mensagem}",
+            fg=typer.colors.RED,
+            err=True,
+        )
+        raise typer.Exit(code=1)
 
     resultado = analise.analisar(issues, prs, arquivos)
     relatorio.imprimir_resumo(repositorio, resultado)
