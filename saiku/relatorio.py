@@ -7,7 +7,7 @@ from typing import List
 import pandas as pd
 import typer
 
-FORMATOS = ("csv", "json")
+FORMATOS = ("csv", "json", "md")
 
 
 def imprimir_resumo(repo: str, resultado: dict) -> None:
@@ -60,6 +60,8 @@ def exportar(
     tabelas = {"issues": issues, "prs": prs, "arquivos_correcoes": arquivos}
     if formato == "csv":
         return _exportar_csv(saida, tabelas, resultado)
+    if formato == "md":
+        return _exportar_markdown(saida, resultado)
     return _exportar_json(saida, tabelas, resultado)
 
 
@@ -87,4 +89,16 @@ def _exportar_json(saida: Path, tabelas: dict, resultado: dict) -> List[Path]:
     caminho.write_text(
         json.dumps(conteudo, ensure_ascii=False, indent=2), encoding="utf-8"
     )
+    return [caminho]
+
+
+def _exportar_markdown(saida: Path, resultado: dict) -> List[Path]:
+    linhas = ["# Resumo da analise", "", "## Indicadores", ""]
+    for nome, valor in resultado["indicadores"].items():
+        linhas.append(f"- **{nome.replace('_', ' ')}**: {valor}")
+    linhas += ["", "## Sinais de manutencao", ""]
+    for sinal in resultado["sinais"]:
+        linhas.append(f"- {sinal}")
+    caminho = saida / "analise.md"
+    caminho.write_text("\n".join(linhas) + "\n", encoding="utf-8")
     return [caminho]
