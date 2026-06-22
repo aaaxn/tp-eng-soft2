@@ -16,3 +16,13 @@ A ideia principal é identificar possíveis problemas de manutenção a partir d
 
 Com base nessas informações, o sistema pode gerar um resumo indicando possíveis sinais de dificuldade de manutenção, como módulos com muitos bugs, tarefas acumuladas ou atrasos no processo de revisão de código.
 
+## Tecnologias utilizadas
+
+- **Python**: linguagem principal para implementar a ferramenta.
+- **Typer**: biblioteca para criar a interface de linha de comando.
+- **PyGithub**: biblioteca para acessar dados de issues, pull requests e repositórios do GitHub.
+- **GitHub API**: API oficial usada para coletar informações dos repositórios.
+- **Pandas**: biblioteca para organizar e processar os dados coletados.
+- **CSV/JSON**: formatos para exportar os resultados da análise.
+- **uv**: gerenciador de dependências e ambientes do projeto.
+
