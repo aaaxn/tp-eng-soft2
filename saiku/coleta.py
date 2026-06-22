@@ -92,9 +92,8 @@ def coletar_prs(repo: Repository, max_prs: int) -> Tuple[List[dict], List[PullRe
                 "criada_em": pr.created_at.isoformat(),
                 "finalizada_em": fim.isoformat() if fim else None,
                 "dias_para_fechar": dias_para_fechar,
-                "dias_aberta": (agora - pr.created_at).days
-                if fim is None
-                else dias_para_fechar,
+                # so faz sentido enquanto o pr esta aberto; finalizado usa dias_para_fechar
+                "dias_aberta": (agora - pr.created_at).days if fim is None else None,
                 "mesclada": pr.merged_at is not None,
             }
         )

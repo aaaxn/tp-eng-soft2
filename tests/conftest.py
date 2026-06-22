@@ -75,7 +75,7 @@ def prs():
             "criada_em": "2024-01-01T00:00:00+00:00",
             "finalizada_em": "2024-01-21T00:00:00+00:00",
             "dias_para_fechar": 20,
-            "dias_aberta": 20,
+            "dias_aberta": None,
             "mesclada": True,
         },
         {
@@ -87,7 +87,7 @@ def prs():
             "criada_em": "2024-01-01T00:00:00+00:00",
             "finalizada_em": "2024-01-06T00:00:00+00:00",
             "dias_para_fechar": 5,
-            "dias_aberta": 5,
+            "dias_aberta": None,
             "mesclada": False,
         },
         {
@@ -111,7 +111,7 @@ def prs():
             "criada_em": "2024-01-01T00:00:00+00:00",
             "finalizada_em": "2024-01-03T00:00:00+00:00",
             "dias_para_fechar": 2,
-            "dias_aberta": 2,
+            "dias_aberta": None,
             "mesclada": True,
         },
     ]
