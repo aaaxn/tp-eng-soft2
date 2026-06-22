@@ -7,32 +7,34 @@ from typing import List
 import pandas as pd
 import typer
 
+from saiku.analise import Resultado
+
 FORMATOS = ("csv", "json", "md")
 
 
-def imprimir_resumo(repo: str, resultado: dict) -> None:
+def imprimir_resumo(repo: str, resultado: Resultado) -> None:
     typer.secho(f"\n Resumo da análise: {repo} ===", bold=True)
 
     typer.secho("\nIndicadores:", bold=True)
-    for nome, valor in resultado["indicadores"].items():
+    for nome, valor in resultado.indicadores.items():
         typer.echo(f"  {nome.replace('_', ' ')}: {valor}")
 
     typer.secho("\nSinais de manutenção:", bold=True)
-    for sinal in resultado["sinais"]:
+    for sinal in resultado.sinais:
         typer.secho(f"  ! {sinal}", fg=typer.colors.YELLOW)
 
     _imprimir_top(
-        resultado["issues_antigas"],
+        resultado.issues_antigas,
         "Issues abertas há mais tempo",
         ["numero", "dias_aberta", "titulo"],
     )
     _imprimir_top(
-        resultado["prs_demorados"],
+        resultado.prs_demorados,
         "PRs mais demorados",
         ["numero", "dias_para_fechar", "titulo"],
     )
     _imprimir_top(
-        resultado["arquivos_quentes"],
+        resultado.arquivos_quentes,
         "Arquivos mais alterados em correções",
         ["arquivo", "correcoes", "alteracoes"],
     )
@@ -53,7 +55,7 @@ def exportar(
     issues: List[dict],
     prs: List[dict],
     arquivos: List[dict],
-    resultado: dict,
+    resultado: Resultado,
 ) -> List[Path]:
     # exporta os dados coletados e o resumo da analise no formato escolhido
     saida.mkdir(parents=True, exist_ok=True)
@@ -65,7 +67,7 @@ def exportar(
     return _exportar_json(saida, tabelas, resultado)
 
 
-def _exportar_csv(saida: Path, tabelas: dict, resultado: dict) -> List[Path]:
+def _exportar_csv(saida: Path, tabelas: dict, resultado: Resultado) -> List[Path]:
     gerados = []
     for nome, dados in tabelas.items():
         if not dados:
@@ -74,16 +76,16 @@ def _exportar_csv(saida: Path, tabelas: dict, resultado: dict) -> List[Path]:
         pd.DataFrame(dados).to_csv(caminho, index=False)
         gerados.append(caminho)
     caminho = saida / "resumo.csv"
-    pd.DataFrame([resultado["indicadores"]]).to_csv(caminho, index=False)
+    pd.DataFrame([resultado.indicadores]).to_csv(caminho, index=False)
     gerados.append(caminho)
     return gerados
 
 
-def _exportar_json(saida: Path, tabelas: dict, resultado: dict) -> List[Path]:
+def _exportar_json(saida: Path, tabelas: dict, resultado: Resultado) -> List[Path]:
     caminho = saida / "analise.json"
     conteudo = {
-        "indicadores": resultado["indicadores"],
-        "sinais": resultado["sinais"],
+        "indicadores": resultado.indicadores,
+        "sinais": resultado.sinais,
         **tabelas,
     }
     caminho.write_text(
@@ -92,12 +94,12 @@ def _exportar_json(saida: Path, tabelas: dict, resultado: dict) -> List[Path]:
     return [caminho]
 
 
-def _exportar_markdown(saida: Path, resultado: dict) -> List[Path]:
+def _exportar_markdown(saida: Path, resultado: Resultado) -> List[Path]:
     linhas = ["# Resumo da analise", "", "## Indicadores", ""]
-    for nome, valor in resultado["indicadores"].items():
+    for nome, valor in resultado.indicadores.items():
         linhas.append(f"- **{nome.replace('_', ' ')}**: {valor}")
     linhas += ["", "## Sinais de manutencao", ""]
-    for sinal in resultado["sinais"]:
+    for sinal in resultado.sinais:
         linhas.append(f"- {sinal}")
     caminho = saida / "analise.md"
     caminho.write_text("\n".join(linhas) + "\n", encoding="utf-8")
