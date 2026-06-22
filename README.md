@@ -8,3 +8,11 @@
 - Flávio Soriano
 - Victoria Flores
 
+## Explicação do sistema
+
+O sistema proposto é uma ferramenta de linha de comando para analisar issues e pull requests de repositórios no GitHub.
+
+A ideia principal é identificar possíveis problemas de manutenção a partir do processo de desenvolvimento do projeto. A ferramenta pode analisar, por exemplo, issues abertas há muito tempo, issues relacionadas a bugs, pull requests demorados para serem revisados e arquivos modificados com muita frequência em correções.
+
+Com base nessas informações, o sistema pode gerar um resumo indicando possíveis sinais de dificuldade de manutenção, como módulos com muitos bugs, tarefas acumuladas ou atrasos no processo de revisão de código.
+
