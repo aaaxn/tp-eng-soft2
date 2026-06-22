@@ -34,3 +34,29 @@ Com base nessas informações, o sistema pode gerar um resumo indicando possíve
 uv sync
 ```
 
+## Como usar
+
+```bash
+uv run saiku DONO/REPOSITORIO [opções]
+```
+
+Exemplo (analisando o repositório do Flask):
+
+```bash
+uv run saiku pallets/flask --max-issues 200 --max-prs 100 --formato csv
+```
+
+Opções principais:
+
+| Opção | Padrão | Descrição |
+|---|---|---|
+| `--max-issues` | 200 | Máximo de issues recentes a coletar |
+| `--max-prs` | 100 | Máximo de pull requests recentes a coletar |
+| `--max-prs-arquivos` | 15 | Máximo de PRs de correção cujos arquivos alterados serão inspecionados |
+| `--formato` | csv | Formato de exportação: `csv`, `json` ou `md` |
+| `--saida` | resultados | Diretório onde salvar os resultados |
+| `--token` | — | Token do GitHub (também lido da variável `GITHUB_TOKEN`) |
+| `--version` | — | Mostra a versão e sai |
+
+Sem token, a API do GitHub permite apenas 60 requisições por hora; com token, o limite sobe para 5000. Para repositórios grandes, recomenda-se usar um token.
+
