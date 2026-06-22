@@ -1,0 +1,17 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  testes:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Instala o uv
+        uses: astral-sh/setup-uv@v5
+      - name: Sincroniza as dependencias
+        run: uv sync
+      - name: Roda os testes
+        run: uv run pytest -v
