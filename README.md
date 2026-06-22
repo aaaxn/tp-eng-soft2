@@ -70,3 +70,31 @@ uv run pytest
 
 Os mesmos testes são executados automaticamente a cada push e pull request via **GitHub Actions** (workflow em `.github/workflows/ci.yml`).
 
+## O que a ferramenta analisa
+
+A partir das issues e PRs mais recentes do repositório, a ferramenta calcula indicadores e aponta sinais de possível dificuldade de manutenção:
+
+- **Issues abertas há muito tempo** (mais de 90 dias): indício de backlog estagnado.
+- **Proporção de issues de bug** (identificadas por labels e palavras-chave no título): indício de instabilidade.
+- **PRs demorados** (mais de 14 dias para serem mesclados/fechados) e PRs abertos aguardando revisão: indício de atraso no processo de revisão.
+- **Arquivos modificados com frequência em PRs de correção** (hotspots): indício de módulos propensos a bugs.
+
+## Estrutura do código
+
+```
+saiku/
+├── main.py       # interface de linha de comando (Typer)
+├── coleta.py     # coleta de issues, PRs e arquivos via API do GitHub (PyGithub)
+├── analise.py    # cálculo dos indicadores e sinais de manutenção (pandas)
+└── relatorio.py  # resumo no terminal e exportação em CSV/JSON/Markdown
+tests/            # testes de unidade (pytest)
+.github/workflows/ci.yml   # execução automática dos testes (GitHub Actions)
+```
+
+## Saída
+
+A ferramenta imprime no terminal um resumo com os indicadores, os sinais de alerta e os principais casos (issues mais antigas, PRs mais demorados, arquivos mais alterados em correções), e exporta os dados coletados para o diretório de saída:
+
+- `issues.csv`, `prs.csv`, `arquivos_correcoes.csv` e `resumo.csv` (formato CSV);
+- `analise.json` (formato JSON); ou
+- `analise.md` (formato Markdown).
